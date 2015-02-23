@@ -1,0 +1,42 @@
+<div>
+  <div class="row">
+    <div class="col-md-3 col-sm-offset-1" id="followers">
+      <% if @followers.any? || @pending_requests.any? %>
+        <h4>Followers:</h4>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th> Email address </th>
+              <th> Status </th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if @followers.any? %>
+              <% @followers.each do |follower| %>
+                <tr>
+                  <td> <%= follower.email %> </td>
+                  <td> Approved </td>
+                </tr>
+              <% end %>
+            <% end %>
+
+            <% if @pending_requests.any? %>
+              <% @pending_requests.each do |request| %>
+                <tr>
+                  <td>
+                    <%= request.follower.email %>
+                  </td>
+                  <td>
+                    <%= link_to 'Accept', accept_request_path(request), method: :post %>
+                    <%= link_to 'Deny', deny_request_path(request), method: :post %>
+                  </td>
+                </tr>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      <% end %>
+    </div>
+  </div>
+</div>

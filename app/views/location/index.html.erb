@@ -1,0 +1,126 @@
+<% last_known_location = @user.last_known_location %>
+<% if last_known_location.present? %>
+  <h4>Last known location for <%= @user.email %> on
+  <%= last_known_location.captured_at.strftime('%b %e, %Y at %I:%M:%S %p') %></h4>
+  <script type="text/javascript">
+    function initialize() {
+      var location = new google.maps.LatLng(<%= last_known_location.location.lat %>, <%= last_known_location.location.lon %>);
+      var mapOptions = {
+        center: location,
+        zoom: 15
+      };
+
+      var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+      var infoWindow = new google.maps.InfoWindow();
+
+      
+      var marker = new google.maps.Marker({
+          position: location,
+          map: map,
+          icon: '<%=@user.avatar.url(:avatar) %>',
+          opacity: 1
+      });
+
+      var lineSymbol = {
+        path: 'M 0,-1 0,1',
+        strokeOpacity: 1,
+        scale: 4
+      };
+
+      <% locations_todraw_time=@user.locations.order(created_at: :asc).where(created_at: (Time.now.midnight-5.day)..(Time.now.midnight+1.day))%>
+      <% locations_todraw=@user.locations.order(created_at: :desc).take(100)%>
+      <% for i in 0..(locations_todraw.count-1)%>
+        
+        var histpot=new google.maps.LatLng( <%=locations_todraw[i].location.lat%>,<%=locations_todraw[i].location.lon%>);
+        var mks=new google.maps.Marker({
+          position:histpot,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 3,
+            strokeColor: 'red',
+
+          },
+
+          map:map,
+          opacity: <%=1-i/10.0*10.0/locations_todraw.count%> 
+        })
+        <%if locations_todraw[i].image.present?%>
+          var mks=new google.maps.Marker({
+          position:histpot,
+          icon: '/assets/camera-20.png',
+          map:map,
+          opacity: <%=1-i/10.0*10.0/locations_todraw.count%> 
+        })  
+
+        <%end%>
+
+        <%if i>0%>
+        var line=[
+          new google.maps.LatLng(<%=locations_todraw[i].location.lat%>,<%=locations_todraw[i].location.lon%>),
+          new google.maps.LatLng(<%=locations_todraw[i-1].location.lat%>, <%=locations_todraw[i-1].location.lon%>)
+          ];
+        var path=new google.maps.Polyline({
+          path: line,
+          geodesic:true,
+          strokeColor: '#000000',
+          strokeOpacity: <%=1-i/10.0*10.0/locations_todraw.count%>,
+          strokeWeight: 2,
+          
+          map:map
+        });
+        <%end%>
+
+        google.maps.event.addListener(mks, 'click', function(i){
+          pos= new google.maps.LatLng(<%=locations_todraw[i].location.lat%>,<%=locations_todraw[i].location.lon%>);
+          map.setCenter(pos);
+          mks.setPosition(pos);
+          infoWindow.setContent($('#user_track_info_'+'<%=locations_todraw[i].id%>').html());
+          infoWindow.open(map, mks);
+        });
+
+      <%end%>
+      google.maps.event.addListener(marker, 'click', function(){
+          map.setCenter(marker.getPosition());
+          infoWindow.setContent($('#user_info_'+'<%= @user.id %>').html());
+          infoWindow.open(map, marker);
+        });
+
+    }
+    google.maps.event.addDomListener(window, 'load', initialize);
+  </script>
+<% end %>
+
+<div id="map-canvas"></div>
+
+
+
+
+<% if last_known_location.present? %>
+    <script type="text/template" id="user_info_<%= @user.id %>">
+      <div>
+        <h3><%= @user.email %></h3>
+        <p>Captured: <%= last_known_location.captured_at %></p>
+          <% if last_known_location.image.present? %>
+            <%= image_tag last_known_location.image.url(:large) %>
+          <% end %>
+        </div>
+      
+    </script>
+<%end%>
+
+<%if @user.locations.count>0%>
+<% locations_todraw.each do |loc| %>  
+    <script type="text/template" id="user_track_info_<%=loc.id%>">
+      <div>
+        <h3><%= @user.email %></h3>
+        <p>Captured: <%= loc.id %></p>
+          <% if loc.image.present? %>
+            <%= image_tag loc.image.url(:large) %>
+          <% end %>
+        </div>     
+    </script>
+<%end%>
+<%end%>
+
+
+

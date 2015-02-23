@@ -1,0 +1,6 @@
+<% if @users.blank? %>
+  <h4>Nothing to see here. No location data yet.</h4>
+<% else %>
+  <%= render 'shared/users_location' %>
+<% end %>
+<div id="map-canvas"></div>

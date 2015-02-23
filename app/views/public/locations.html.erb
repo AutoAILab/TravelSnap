@@ -1,0 +1,9 @@
+<% if @user %>
+  <% if @user.locations.any? %>
+    <%= render template: 'location/index' %>
+  <% else %>
+    <%= "Nothing to see here. No location data yet for #{@user.email}." %>
+  <% end %>
+<% end %>
+
+<div id="map-canvas"></div>
