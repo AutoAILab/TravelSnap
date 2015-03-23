@@ -1,0 +1,75 @@
+<% if @users.present? %>
+  <script type="text/javascript">
+    function initialize(){
+      var map = new google.maps.Map(document.getElementById("map-canvas"));
+      var bounds = new google.maps.LatLngBounds();
+
+      var user_information = [
+        <% @users.each do |user| %>
+          [
+          '<%= user.id %>',
+          '<%= user.email %>',
+          <%= user.last_known_location.location.lat %>,
+          <%= user.last_known_location.location.lon %>,
+          '<%= user.avatar.present? ? user.avatar.url(:avatar) : 0 %>',
+          ],
+        <% end %>
+      ];
+
+      var infoWindow = new google.maps.InfoWindow(), marker, i;
+
+      for(i = 0; i < user_information.length; i++){
+        var position = new google.maps.LatLng(user_information[i][2], user_information[i][3]);
+
+        bounds.extend(position);
+
+        if(user_information[i][4] == 0){
+          marker = new google.maps.Marker({
+            position: position,
+            map: map,
+          });
+        }else{
+          marker = new google.maps.Marker({
+            position: position,
+            map: map,
+            icon: user_information[i][4]
+          });
+        }
+
+        google.maps.event.addListener(marker, 'click', (function(marker, i){
+          return function() {
+            infoWindow.setContent($('#user_info_'+user_information[i][0]).html());
+            infoWindow.open(map, marker);
+          }
+        })(marker, i));
+
+        map.fitBounds(bounds);
+      }
+
+      var boundsListener = google.maps.event.addListener((map), 'bounds_changed', function(event) {
+        this.setZoom(Math.min(12, this.getZoom()));
+        google.maps.event.removeListener(boundsListener);
+      });
+    }
+    google.maps.event.addDomListener(window, 'load', initialize);
+  </script>
+<% end %>
+
+<% if @users.present? %>
+  <% @users.each do |user| %>
+    <script type="text/template" id="user_info_<%= user.id %>">
+      <div>
+        <h3><%= user.email %></h3>
+        <p>Captured: <%= user.last_known_location.captured_at %></p>
+          <% if user.last_known_location.image.present? %>
+            <p>
+              <%= image_tag user.last_known_location.image.url(:large) %>
+            </p>
+            <p>Direction: <%= user.last_known_location.direction or '-'%></p>
+            <p>Altitude: <%= user.last_known_location.altitude or '-' %></p>
+          <% end %>
+        </div>
+      </div>
+    </script>
+  <% end %>
+<% end %>

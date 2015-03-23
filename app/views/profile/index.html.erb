@@ -1,0 +1,31 @@
+<div class="col-md-6 col-sm-offset-1">
+  <h2> Profile </h2>
+
+  <%= form_for :user, method: :post, url: profile_update_url do |f| %>
+    <br/>
+    <p> <%= f.label :avatar, 'Avatar Image: ' %> </p>
+    <br/>
+
+    <p> <%= image_tag current_user.avatar.url(:large), id: 'avatar_img' %> </p>
+
+    <p>
+      <span class="btn btn-primary btn-file">
+        Browse <%= f.file_field :avatar %>
+      </span>
+      </p>
+    </p>
+
+    <%= f.submit "Save Changes", class: "btn btn-primary" %>
+    </p>
+  <% end %>
+
+    <p>
+    <% if current_user.public_link_token.present? %>
+      <%= label_tag :public_link, 'Public link:' %>
+      <%= link_to public_url(current_user.public_link_token), public_url(current_user.public_link_token), id: 'public_link' %>
+    <% end %>
+    </p>
+    <p>
+      <%= link_to 'Generate new public link!', generate_public_link_url, method: :post %>
+    <p>
+</div>

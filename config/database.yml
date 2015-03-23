@@ -1,0 +1,16 @@
+default: &default
+  adapter: postgis
+  pool: 5
+  timeout: 5000
+
+development:
+  <<: *default
+  database: webgisfinal_development
+
+test:
+  <<: *default
+  database: webgisfinal_test
+
+production:
+  <<: *default
+  database: webgisfinal_production

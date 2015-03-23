@@ -1,0 +1,36 @@
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href=<%= root_path %>>TravelSnap</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="followers_link <%= 'active' if current_page?('/followers') %>">
+          <%= link_to 'Followers', followers_path %>
+        </li>
+
+        <li class="following_link <%= 'active' if current_page?('/following') %>">
+          <%= link_to 'Following', following_path %>
+        </li>
+
+        <li class="range_search_link <%= 'active' if current_page?('/range_search') %>">
+          <%= link_to 'Range Search', range_search_path %>
+        </li>
+
+        <li class="profile_link <%= 'active' if current_page?('/profile') %>">
+          <%= link_to 'Profile', profile_path %>
+        </li>
+
+        <li class="about_link <%= 'active' if current_page?('/about') %>">
+          <%= link_to 'About', about_path %>
+        </li>
+      </ul>
+
+      <ul class="nav navbar-nav navbar-right">
+        <li class="menu_item"> <%= current_user.email %></li>
+        <li><%= link_to 'Logout', destroy_user_session_path, method: :delete %></li>
+      </ul>
+    </div>
+  </div>
+</nav>

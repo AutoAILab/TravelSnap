@@ -1,0 +1,124 @@
+<div class="row">
+<div class="col-md-10 col-sm-offset-1">
+  <%= form_for :search, method: :post, url: execute_range_search_url, html: { class: 'form-horizontal', role: 'form' } do |f| %>
+    <div class="form-group">
+      <%= f.label :email, 'Email: ', class: 'col-md-1 control-label' %>
+      <div class="col-sm-10">
+      <%= f.select :email, @following.map(&:email), class: 'form-control', selected: (@user.present? ? @user.email : '') %>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :select_date, 'From: ', class: 'col-md-1 control-label' %>
+      <div class="col-sm-10">
+      <%= select_date @start_date || Date.today, prefix: "search[start_date]",
+        order: [:month, :day, :year],
+        html_options: { autocomplete: 'off', class: 'form-control' } %>
+      </div>
+    </div>
+    <div class="form-group">
+      <%= f.label :select_date, 'To: ', class: 'col-md-1 control-label' %>
+      <div class="col-sm-10">
+        <%= select_date @end_date || Date.today, prefix: "search[end_date]",
+          order: [:month, :day, :year],
+          html_options: { autocomplete: 'off' }  %>
+      </div>
+    </div>
+    <div class="form-group">
+      <%= f.label :area, 'Where: ', class: 'col-md-1 control-label' %>
+      <%= f.text_field :area, value: @area || '' %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :distance, 'Distance: ', class: 'col-md-1 control-label' %>
+      <%= f.text_field :distance , value: @distance || '' %> meters
+
+      <%= f.submit 'Search', class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>
+
+<% if @locations.present? %>
+  <script type="text/javascript">
+    function initialize(){
+      var map = new google.maps.Map(document.getElementById("map-canvas"));
+      var bounds = new google.maps.LatLngBounds();
+
+      var user_information = [
+        <% @locations.each do |user_location| %>
+          [
+          '<%= user_location.id %>',
+          '<%= @user.email %>',
+          <%= user_location.location.lat %>,
+          <%= user_location.location.lon %>,
+          <%= user_location.image.present? ? 1 : 0 %>,
+          ],
+        <% end %>
+      ];
+
+      var infoWindow = new google.maps.InfoWindow(), marker, i;
+
+      for(i = 0; i < user_information.length; i++){
+        var position = new google.maps.LatLng(user_information[i][2], user_information[i][3]);
+
+        bounds.extend(position);
+
+        if(user_information[i][4] == 0){
+          marker = new google.maps.Marker({
+            position: position,
+            map: map,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 3,
+              strokeColor: 'red',
+            },
+          });
+        }
+        else{
+          marker = new google.maps.Marker({
+            position: position,
+            map: map,
+            icon: '/assets/camera-20.png',
+          });
+        }
+
+        google.maps.event.addListener(marker, 'click', (function(marker, i){
+          return function() {
+            infoWindow.setContent($('#user_info_'+user_information[i][0]).html());
+            infoWindow.open(map, marker);
+          }
+        })(marker, i));
+
+        map.fitBounds(bounds);
+      }
+
+      var boundsListener = google.maps.event.addListener((map), 'bounds_changed', function(event) {
+        this.setZoom(Math.min(12, this.getZoom()));
+        google.maps.event.removeListener(boundsListener);
+      });
+    }
+    google.maps.event.addDomListener(window, 'load', initialize);
+  </script>
+<% end %>
+
+<% if @locations.present? %>
+  <% @locations.each do |location| %>
+    <script type="text/template" id="user_info_<%= location.id %>">
+      <div>
+        <h3><%= @user.email %></h3>
+        <p>Captured: <%= location.captured_at %></p>
+          <% if location.image.present? %>
+            <p>
+              <%= image_tag location.image.url(:large) %>
+            </p>
+            <p>Direction: <%= location.direction or '-'%></p>
+            <p>Altitude: <%= location.altitude or '-' %></p>
+          <% end %>
+        </div>
+      </div>
+    </script>
+  <% end %>
+<% end %>
+</div>
+
+<div id="map-canvas"></div>

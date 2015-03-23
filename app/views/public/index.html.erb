@@ -1,0 +1,14 @@
+<% if @user %>
+  <% if @user.locations.any? %>
+    <h4>Last known location for <%= @user.email %> on
+		
+		<% if !defined?(@user.last_known_location.captured_at) %>
+    <%= @user.last_known_location.captured_at.strftime('%b %e, %Y at %I:%M:%S %p') %></h4>
+		<% end  %>
+    <%= render 'shared/users_location', zoom: 12 %>
+  <% else %>
+    <%= "Nothing to see here. No location data yet for #{@user.email}." %>
+  <% end %>
+<% end %>
+
+<div id="map-canvas"></div>

@@ -1,0 +1,23 @@
+<% if @user %>
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href=<%= root_path %>>TravelSnap</a>
+      </div>
+
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li class="<%= 'active' if current_page?(action: 'index') %>">
+            <%= link_to 'Home', public_path(@user.public_link_token) %>
+          </li>
+
+          <li class="<%= 'active' if current_page?(action: 'locations') %>">
+            <%= link_to 'Recent Locations', public_locations_path(@user.public_link_token) %>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <h4> Public link for <%= @user.email %> </h4>
+<% end %>

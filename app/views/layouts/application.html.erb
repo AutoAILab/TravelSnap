@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>TravelSnap</title>
+    <%= stylesheet_link_tag 'application', media: 'all' %>
+    <%= javascript_include_tag 'application' %>
+
+    <style type="text/css">
+      html, body, #map-canvas { height: 95%; margin: 0; padding: 0;}
+    </style>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCUIlkkMTGMnXDLe8wMXyxQzyTndrz3ygs">
+    </script>
+    <%= csrf_meta_tags %>
+  </head>
+  <body>
+    <% if user_signed_in? || controller_name == 'public' %>
+      <%= render "menu" %>
+    <% end %>
+
+    <%= render "flashes" %>
+
+    <%= yield %>
+
+  </body>
+</html>

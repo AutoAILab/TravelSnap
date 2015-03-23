@@ -1,0 +1,17 @@
+/log/*.log
+/tmp
+/.bundle
+.bundle
+.powenv
+.ruby-gemset
+.ruby-version
+.DS_Store
+.env
+.latest.dump
+.project
+log/*.log
+tmp
+public/system/*
+
+
+
